@@ -14,7 +14,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: shadowUrl.src,
 })
 
-type Event = {
+type EventItem = {
   id: number
   title: string
   category: string
@@ -22,7 +22,7 @@ type Event = {
 }
 
 export default function Map() {
-  const [events, setEvents] = useState<Event[]>([])
+  const [events, setEvents] = useState<EventItem[]>([])
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -31,14 +31,19 @@ export default function Map() {
         if (!res.ok) throw new Error("Failed to load events")
         return res.json()
       })
-      .then((data: Event[]) => setEvents(Array.isArray(data) ? data : []))
-      .catch((err: any) => setError(err.message))
+      .then((data: EventItem[]) => setEvents(Array.isArray(data) ? data : []))
+      .catch((err: unknown) => setError(err instanceof Error ? err.message : String(err)))
   }, [])
 
-  if (error) return <div className="p-4 text-red-600">Error: {error}</div>
+  if (error) return <div style={{ padding: 16, color: "red" }}>Error: {error}</div>
 
   return (
-    <MapContainer center={[20, 0]} zoom={2} className="h-screen w-full" scrollWheelZoom>
+    <MapContainer
+      center={[20, 0]}
+      zoom={2}
+      style={{ height: "100vh", width: "100%" }}
+      scrollWheelZoom
+    >
       <TileLayer
         attribution='&copy; OpenStreetMap contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
